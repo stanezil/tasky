@@ -16,6 +16,7 @@ spec:
       containers:
       - name: web-app
         image: stanhoe/tasky:demo
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:

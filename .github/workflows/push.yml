@@ -7,10 +7,7 @@ on:
 env:
   DOCKER_USER: ${{ secrets.DOCKER_USER }} # Docker Registry
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} # Docker Registry
-  BUILD_NUMBER: ${{ github.run_id }}
-  BUILD_NAME: ${{ github.repository }}
   GITHUB_WORKSPACE: ${{ github.workspace }}
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
   IMAGE_NAME: stanhoe/tasky:demo
   
 jobs:
@@ -53,6 +50,36 @@ jobs:
       run: |
         docker login --username $DOCKER_USER --password $DOCKER_PASSWORD
         docker push $IMAGE_NAME
+
+  deploy:
+      name: Deploy to EKS
+      needs: build
+      runs-on: ubuntu-24.04
+      steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install AWS Cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+    
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{env.AWS_REGION}}
+
+      - name: Update kube config
+        run: |
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f manifests/hello-app-deployment.yaml
+          kubectl apply -f manifests/hello-app-service.yaml
         
 
 

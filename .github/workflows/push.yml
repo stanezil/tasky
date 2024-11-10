@@ -5,9 +5,6 @@ on:
     branches: [ "main" ]
 
 env:
-  DOCKER_USER: ${{ secrets.DOCKER_USER }} # Docker Registry
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} # Docker Registry
-  GITHUB_WORKSPACE: ${{ github.workspace }}
   IMAGE_NAME: stanhoe/tasky:demo
   
 jobs:
@@ -48,7 +45,7 @@ jobs:
 
     - name: Push Docker image to repository
       run: |
-        docker login --username $DOCKER_USER --password $DOCKER_PASSWORD
+        docker login --username ${{ secrets.$DOCKER_USER }} --password ${{ secrets.$DOCKER_PASSWORD }}
         docker push $IMAGE_NAME
 
   deploy:
@@ -74,7 +71,7 @@ jobs:
 
       - name: Update kube config
         run: |
-          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+          aws eks update-kubeconfig --name ${{ secrets.$EKS_CLUSTER_NAME }} --region ${{ secrets.$AWS_REGION }}
 
       - name: Deploy to EKS
         run: |

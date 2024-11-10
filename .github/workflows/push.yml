@@ -73,7 +73,7 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to EKS
+      - name: Deploy to EKS Cluster
         run: |
           sed -i.bak \
           -e "s|secret-key|${{ secrets.SECRET_KEY }}|g" \

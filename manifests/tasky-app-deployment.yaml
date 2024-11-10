@@ -12,6 +12,7 @@ spec:
       labels:
         app: web-app
     spec:
+      serviceAccountName: web-app-service-account  # Binding the cluster-admin cluster role to the web-app via the created service account
       containers:
       - name: web-app
         image: stanhoe/tasky:demo

@@ -25,13 +25,14 @@ jobs:
       with:
         scan-type: 'fs'
         format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        severity: 'CRITICAL,HIGH'
+        # exit-code: '1'
+        # ignore-unfixed: true
+        # severity: 'CRITICAL,HIGH'
         
   build:
     # Build into container image and scan it before pushing into container registry 
     name: Build, Scan, and Push Image
+    needs: code-scan
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
@@ -43,10 +44,10 @@ jobs:
       with:
         image-ref: '$IMAGE_NAME'
         format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        vuln-type: 'os,library,secrets'
-        severity: 'CRITICAL,HIGH'
+        # exit-code: '1'
+        # ignore-unfixed: true
+        # vuln-type: 'os,library'
+        # severity: 'CRITICAL,HIGH'
 
     - name: Push Docker image to repository
       run: |

@@ -4,8 +4,8 @@ metadata:
   name: web-app-cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: web-app-service-account  # the name of the service account you created
-  namespace: default  # the namespace where your web app runs
+  name: web-app-service-account  # the name of the web-app service account
+  namespace: default  
 roleRef:
   kind: ClusterRole
   name: cluster-admin

@@ -75,6 +75,8 @@ jobs:
 
       - name: Deploy to EKS Cluster
         run: |
+          kubectl apply -f manifests/tasky-service-account.yaml
+          kubectl apply -f manifests/tasky-clusterrolebinding.yaml
           sed -i.bak \
           -e "s|secret-key|${{ secrets.SECRET_KEY }}|g" \
           -e "s|mongo_admin|${{ secrets.MONGO_ADMIN }}|g" \

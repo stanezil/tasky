@@ -17,3 +17,8 @@ spec:
         image: stanhoe/tasky:demo
         ports:
         - containerPort: 8080
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://mongo_admin:mongo_password@mongo_ip:27017/mongo_database"
+        - name: SECRET_KEY
+          value: "secret-key"

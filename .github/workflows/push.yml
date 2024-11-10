@@ -1,0 +1,57 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  DOCKER_USER: ${{ secrets.DOCKER_USER }} # Docker Registry
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} # Docker Registry
+  BUILD_NUMBER: ${{ github.run_id }}
+  BUILD_NAME: ${{ github.repository }}
+  GITHUB_WORKSPACE: ${{ github.workspace }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  IMAGE_NAME: stanhoe/tasky:demo
+  
+jobs:
+  # SCA & IaC scan before building into image
+  code-scan: 
+    name: Code Scan
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Trivy vulnerability scanner in fs mode
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        scan-type: 'fs'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+        
+  build:
+    # Build into container image and scan it before pushing into container registry 
+    name: Build, Scan, and Push Image
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME  
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        image-ref: '$IMAGE_NAME'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library,secrets'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Push Docker image to repository
+      run: |
+        docker login --username $DOCKER_USER --password $DOCKER_PASSWORD
+        docker push $IMAGE_NAME
+        
+
+
